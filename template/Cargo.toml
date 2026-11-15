@@ -1,0 +1,50 @@
+[workspace]
+
+[package]
+name = "podium_pool"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "A prize pool for contests: the prize is locked before the first entry, judges rank, one call pays every placement"
+
+[package.metadata.tari-template]
+tags = ["contests", "prizes", "escrow", "payments"]
+category = "payments"
+
+[dependencies]
+tari_template_lib = { version = "0.40" }
+
+# The engine test tooling runs the template in the network's own WASM engine. That engine's
+# compiler backend does not build on Windows, so the engine tests in tests/ run on Linux and macOS
+# (and in CI). The rule tests in src/rules.rs run everywhere.
+[target.'cfg(not(windows))'.dev-dependencies]
+tari_template_test_tooling = "0.53"
+tari_crypto = "0.24"
+sha2 = "0.10"
+
+[build-dependencies]
+tari_ootle_template_build = "0.20"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[profile.release]
+opt-level = 's'
+lto = true
+codegen-units = 1
+panic = 'abort'
+strip = true
+
+# The WASM engine is much slower in debug builds; optimise it even for tests.
+[profile.dev.package.wasmer]
+opt-level = 2
+[profile.dev.package.wasmer-compiler]
+opt-level = 2
+[profile.dev.package.wasmer-compiler-cranelift]
+opt-level = 2
+[profile.dev.package.cranelift-codegen]
+opt-level = 2
+[profile.dev.package.cranelift-frontend]
+opt-level = 2
+[profile.dev.package.cranelift-entity]
+opt-level = 2
